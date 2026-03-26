@@ -13,7 +13,7 @@ ARG PSYCOPG2=2.9.10
 
 # To override the package version since we copy only part of the repository.
 # See https://setuptools-scm.readthedocs.io/en/latest/usage/#with-dockerpodman
-ARG GIT_VERSION
+ARG GIT_VERSION=3.12.2
 
 # TODO: Add build steps for gssapi and PyKCS11
 
@@ -39,7 +39,6 @@ COPY requirements.txt .
 RUN /opt/privacyidea/bin/pip install --no-cache-dir -r requirements.txt
 
 COPY README.rst MANIFEST.in pyproject.toml ./
-COPY ./.git ./.git
 COPY ./deploy/ ./deploy
 COPY ./tools/ ./tools
 COPY ./privacyidea/ ./privacyidea
