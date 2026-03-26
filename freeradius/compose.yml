@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    pull_policy: if_not_present
+    container_name: privacyidea_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: privacyidea
+      MYSQL_USER: jerryadmin
+      MYSQL_PASSWORD: Messiah
+    ports:
+      - "3306:3306"  # optional if you want host access
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      - pi-net
+
+  privacyidea:
+    image: privacyidea:3.12.2
+    pull_policy: if_not_present
+    container_name: privacyidea32
+    depends_on:
+      - mysql
+    environment:
+      ADMIN_USERNAME: jerryadmin
+      ADMIN_PASSWORD: Messiah
+      ADMIN_EMAIL: admin@example.com
+      DB_HOST: mysql
+      DB_USER: jerryadmin
+      DB_PASS: Messiah
+      DB_NAME: privacyidea
+      CUSTOM_USER_TABLE: users
+    entrypoint: ["/etc/privacyidea/entrypoint.sh"]
+    ports:
+      - "8085:8080"
+    volumes:
+      - ./privacycritical:/etc/privacyidea #create a location ./privacycritical/ in your root directory
+    networks:
+      - pi-net
+
+  freeradius:
+    image: freeradius-privacyidea:latest
+    pull_policy: if_not_present
+    container_name: freeradius
+    depends_on:
+      - privacyidea
+    ports:
+      - "1812:1812/udp"  # RADIUS auth
+      - "1813:1813/udp"  # RADIUS accounting
+    volumes:
+      - ./privacycritical/freeradius:/data/freeradius
+    networks:
+      - pi-net
+
+networks:
+  pi-net:
